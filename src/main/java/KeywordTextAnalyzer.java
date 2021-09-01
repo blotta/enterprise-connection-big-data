@@ -1,11 +1,11 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class KeywordTextAnalyzer {
     private final ArrayList<KeyWordCandidate> keyWords;
+    private List<KeyWordCandidate> resultKeyWords;
     private final ArrayList<String> words;
 
     public KeywordTextAnalyzer(ArrayList<String> words) {
@@ -13,37 +13,47 @@ public class KeywordTextAnalyzer {
         this.words = words;
     }
 
-    public List<KeyWordCandidate> GetKeywords(int n) {
+    public void AnalyzeKeywords(int n, IKeywordValidator validator) {
         assert (n > 0);
 
-        for (var w: words) {
-            this.Add(w);
+        for (int i = 0; i < words.size(); i++) {
+            this.add(words.get(i), i);
         }
 
-        KeywordValidator validator = new KeywordValidator();
-        validator
-            .setLengthValidation(3, 2)
-            .setFrequencyValidation(1, 1.5)
-            .setForbiddenWords(new ArrayList<>(Arrays.asList("que", "dos", "com", "para", "nao", "mais")));
+        for (var kwc: keyWords) {
+            kwc.calculateScore(validator);
+        }
 
         keyWords.sort(new Comparator<KeyWordCandidate>() {
             @Override
             public int compare(KeyWordCandidate o1, KeyWordCandidate o2) {
-                return Double.compare(validator.score(o2), validator.score(o1));
+                return Double.compare(o2.getScore(), o1.getScore());
             }
         });
 
-        return keyWords.stream().limit(n).collect(Collectors.toList());
+        resultKeyWords = keyWords.stream().limit(n).collect(Collectors.toList());
     }
 
-    public void Add(String word) {
+    private void add(String word, int pos) {
         for (var candidate : this.keyWords) {
-            if (candidate.word.equals(word)) {
-                candidate.frequency += 1;
+            if (candidate.getWord().equals(word)) {
+                candidate.tick(pos);
                 return;
             }
         }
 
-        keyWords.add(new KeyWordCandidate(word));
+        keyWords.add(new KeyWordCandidate(word, pos));
+    }
+
+    public void printResults() {
+        int maxLen = resultKeyWords.stream().max(Comparator.comparing(c -> c.getWord().length())).get().getWord().length();
+
+        System.out.printf("%5s %" + maxLen +"s %4s %10s %s\n", "RANK", "KEYWORD", "FREQ", "SCORE", "COMMENT");
+        for (int i = 0; i < resultKeyWords.size(); i++) {
+            var kw = resultKeyWords.get(i);
+            System.out.format(
+                "%5d %"+maxLen+"s %4d %10f %s\n",
+                i + 1, kw.getWord(), kw.getFrequency(), kw.getScore(), kw.getScoreComment());
+        }
     }
 }

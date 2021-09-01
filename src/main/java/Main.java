@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -6,10 +9,15 @@ public class Main {
         extractor.Extract();
 
         var analyzer = new KeywordTextAnalyzer(extractor.GetWords());
-        var keywords = analyzer.GetKeywords(100);
 
-        for (var c : keywords) {
-            System.out.format("%s:\t%d\t%f\n", c.word, c.frequency, c.score);
-        }
+        KeywordValidator validator = new KeywordValidator();
+        validator
+            .setLengthValidation(3, 1)
+            .setFrequencyValidation(1, 1)
+            .setPositionValidation(10)
+            .setForbiddenWords(new ArrayList<>(Arrays.asList("que", "dos", "com", "para", "nao", "mais")));
+
+        analyzer.AnalyzeKeywords(20, validator);
+        analyzer.printResults();
     }
 }

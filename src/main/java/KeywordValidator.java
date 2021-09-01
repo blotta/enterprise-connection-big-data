@@ -7,6 +7,8 @@ public class KeywordValidator implements IKeywordValidator {
     private int minFrequency;
     private double frequencyWeight = 0.7;
 
+    private double posWeigth = 1;
+
     private ArrayList<String> forbiddenWords;
 
     public KeywordValidator() {
@@ -30,27 +32,41 @@ public class KeywordValidator implements IKeywordValidator {
         return this;
     }
 
+    public KeywordValidator setPositionValidation(double weight) {
+        this.posWeigth = weight;
+        return this;
+    }
+
     public KeywordValidator setForbiddenWords(ArrayList<String> forbiddenWords) {
         this.forbiddenWords = forbiddenWords;
         return this;
     }
 
-    @Override
     public boolean validate(KeyWordCandidate kwc) {
-        if (kwc.word.length() < minLength) return false;
-        if (kwc.frequency < minFrequency) return false;
-        if (forbiddenWords.contains(kwc.word)) return false;
+        if (kwc.getWord().length() < minLength) return false;
+        if (kwc.getFrequency() < minFrequency) return false;
+        if (forbiddenWords.contains(kwc.getWord())) return false;
         return true;
     }
 
     @Override
-    public double score(KeyWordCandidate kwc) {
+    public double calculateScore(KeyWordCandidate kwc) {
         if (!validate(kwc)) return 0;
 
-        double freqScore = kwc.frequency * this.frequencyWeight;
-        double lenScore = (kwc.word.length()/(double)minLength) * this.lengthWeight;
-        kwc.score = freqScore + lenScore;
+        double freqScore = kwc.getFrequency() * this.frequencyWeight;
+        double lenScore = (kwc.getWord().length()/(double)minLength) * this.lengthWeight;
 
-        return kwc.score;
+        // https://medium.com/mlearning-ai/10-popular-keyword-extraction-algorithms-in-natural-language-processing-8975ada5750c
+        // 4. Position Rank
+
+        double posScore = kwc.getPositions()
+                .stream()
+                .map(x -> (double)x)
+                .reduce(0.0, (acc, curr) -> acc + 1/curr) * posWeigth;
+
+        // kwc.setScore(freqScore + lenScore + posScore);
+        // return kwc.getScore();
+        kwc.setScoreComment(String.format("Freq: %f; Length: %f; Pos: %f", freqScore, lenScore, posScore));
+        return freqScore + lenScore + posScore;
     }
 }
