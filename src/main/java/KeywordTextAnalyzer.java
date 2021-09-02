@@ -17,7 +17,7 @@ public class KeywordTextAnalyzer {
         assert (n > 0);
 
         for (int i = 0; i < words.size(); i++) {
-            this.add(words.get(i), i);
+            this.add(words.get(i), i + 1);
         }
 
         for (var kwc: keyWords) {

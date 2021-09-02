@@ -15,7 +15,9 @@ public class Main {
             .setLengthValidation(3, 1)
             .setFrequencyValidation(1, 1)
             .setPositionValidation(10)
-            .setForbiddenWords(new ArrayList<>(Arrays.asList("que", "dos", "com", "para", "nao", "mais")));
+            .setForbiddenWords(new ArrayList<>(Arrays.asList(
+                    "que", "dos", "com", "para", "nao", "mais", "mas",
+                    "era", "nos", "por", "uma", "tem")));
 
         analyzer.AnalyzeKeywords(20, validator);
         analyzer.printResults();

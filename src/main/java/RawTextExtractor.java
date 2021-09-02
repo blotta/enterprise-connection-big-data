@@ -48,7 +48,7 @@ public class RawTextExtractor {
                 }
             }
 
-            System.out.println(words.size());
+            System.out.println("Total words: " + words.size());
 
         } catch (FileNotFoundException e) {
             System.out.println("File not found");
