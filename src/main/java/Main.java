@@ -4,7 +4,9 @@ import java.util.Arrays;
 public class Main {
 
     public static void main(String[] args) {
-        var extractor = new RawTextExtractor("test.txt");
+        var extractor = new RawTextExtractor("texto.txt");
+//        var extractor = new RawTextExtractor("domCasmurro.txt");
+//        var extractor = new RawTextExtractor("test.txt");
 
         extractor.Extract();
 
@@ -19,7 +21,7 @@ public class Main {
                     "que", "dos", "com", "para", "nao", "mais", "mas",
                     "era", "nos", "por", "uma", "tem")));
 
-        analyzer.AnalyzeKeywords(20, validator);
+        analyzer.AnalyzeKeywords(100, validator);
         analyzer.printResults();
     }
 }
